@@ -22,3 +22,24 @@ class ProjectListAPIViewTest(APITestCase):
         self.assertEqual(status.HTTP_200_OK, response.status_code)
         self.assertEqual(0, response.data["count"])
         self.assertEqual([], response.data["results"])
+
+    def test_should_show_all_projects_with_cost_to_be_less_that(self):
+        ProjectsFactory.create_batch(2, cost=90)
+        ProjectsFactory.create(cost=100)
+        ProjectsFactory.create_batch(3, cost=199)
+
+        url = '/api/v1/projects/?min_cost=100'
+
+        response = self.client.get(url)
+
+        self.assertEqual(3, response.data["count"])
+
+    def test_should_show_all_projects_with_cost_to_be_grether_that(self):
+        ProjectsFactory.create_batch(2, cost=250)
+        ProjectsFactory.create(cost=249)
+
+        url = '/api/v1/projects/?max_cost=250'
+
+        response = self.client.get(url)
+
+        self.assertEqual(2, response.data["count"])
